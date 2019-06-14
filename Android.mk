@@ -17,6 +17,8 @@ LOCAL_STATIC_ANDROID_LIBRARIES := \
     android-support-v7-preference \
     android-support-v7-recyclerview
 
+LOCAL_STATIC_JAVA_LIBRARIES := jsoup
+
 LOCAL_RESOURCE_DIR := \
     $(LOCAL_PATH)/res
 
@@ -29,6 +31,13 @@ include $(BUILD_PACKAGE)
 
 
 include $(CLEAR_VARS)
+
+LOCAL_PREBUILT_STATIC_JAVA_LIBRARIES := jsoup:custom_libs/libjsoup.jar
+
+include $(BUILD_MULTI_PREBUILT)
+
+include $(CLEAR_VARS)
+
 LOCAL_MODULE := UpdaterStudio
 LOCAL_MODULE_CLASS := FAKE
 LOCAL_MODULE_SUFFIX := -timestamp
