@@ -22,7 +22,6 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.BatteryManager;
 import android.os.PowerManager;
-import android.os.SystemProperties;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -511,7 +510,7 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
                 case R.id.menu_copy_url:
                     Utils.addToClipboard(mActivity,
                             mActivity.getString(R.string.label_download_url),
-                            SFUrl(update),
+                            update.getDownloadUrl(),
                             mActivity.getString(R.string.toast_download_url_copied));
                     return true;
                 case R.id.menu_export_update:
@@ -531,16 +530,6 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
 
         MenuPopupHelper helper = new MenuPopupHelper(wrapper, menu, anchor);
         helper.show();
-    }
-
-    private String SFUrl(UpdateInfo update) {
-	String UpVersion = "arrow-" + update.getVersion().substring(1,3) + "x";
-
-	String sfdownurl = mActivity.getString(R.string.sf_download_url);
-
-	return sfdownurl.replace("{device}", SystemProperties.get(Constants.PROP_DEVICE))
-                        .replace("{version}", UpVersion)
-                        .replace("{zip}", update.getName()).trim();
     }
 
     private void exportUpdate(UpdateInfo update) {
