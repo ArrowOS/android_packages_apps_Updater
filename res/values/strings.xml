@@ -170,4 +170,11 @@
 
     <string name="arrowos_display_version">ArrowOS <xliff:g id="version">%1$s</xliff:g> | <xliff:g id="variant">%2$s</xliff:g></string>
     <string name="build_info_card_title">Current build information</string>
+
+    <string name="local_update_import">Local update</string>
+    <string name="local_update_import_progress">Importing local update\u2026</string>
+    <string name="local_update_import_success">%1$s has been imported. Do you want to install it?</string>
+    <string name="local_update_import_failure">Failed to import local update</string>
+    <string name="local_update_import_install">Install</string>
+    <string name="local_update_name">Local update</string>
 </resources>

@@ -15,6 +15,7 @@
  */
 package org.lineageos.updater;
 
+import android.app.ProgressDialog;
 import android.animation.ObjectAnimator;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -38,6 +39,7 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
@@ -57,6 +59,7 @@ import org.lineageos.updater.download.DownloadClient;
 import org.lineageos.updater.misc.Constants;
 import org.lineageos.updater.misc.StringGenerator;
 import org.lineageos.updater.misc.Utils;
+import org.lineageos.updater.model.Update;
 import org.lineageos.updater.model.UpdateInfo;
 
 import java.io.File;
@@ -67,7 +70,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class UpdatesActivity extends UpdatesListActivity {
+public class UpdatesActivity extends UpdatesListActivity implements UpdateImporter.Callbacks {
 
     private static final String TAG = "UpdatesActivity";
     private UpdaterService mUpdaterService;
@@ -86,10 +89,16 @@ public class UpdatesActivity extends UpdatesListActivity {
 
     private static Map<String, String> mirrors;
 
+    private UpdateImporter mUpdateImporter;
+    @SuppressWarnings("deprecation")
+    private ProgressDialog importDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_updates);
+
+        mUpdateImporter = new UpdateImporter(this, this);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mAdapter = new UpdatesListAdapter(this, this);
@@ -168,6 +177,18 @@ public class UpdatesActivity extends UpdatesListActivity {
         LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, intentFilter);
     }
 
+
+    @Override
+    protected void onPause() {
+        if (importDialog != null) {
+            importDialog.dismiss();
+            importDialog = null;
+            mUpdateImporter.stopImport();
+        }
+
+        super.onPause();
+    }
+
     @Override
     public void onStop() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
@@ -200,6 +221,10 @@ public class UpdatesActivity extends UpdatesListActivity {
                 showMirrorPreferencesDialog();
                 return true;
             }
+            case R.id.menu_local_update: {
+                mUpdateImporter.openImportPicker();
+                return true;
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -208,6 +233,59 @@ public class UpdatesActivity extends UpdatesListActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (!mUpdateImporter.onResult(requestCode, resultCode, data)) {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void onImportStarted() {
+        if (importDialog != null && importDialog.isShowing()) {
+            importDialog.dismiss();
+        }
+
+        importDialog = ProgressDialog.show(this, getString(R.string.local_update_import),
+                getString(R.string.local_update_import_progress), true, false);
+    }
+
+    @Override
+    public void onImportCompleted(Update update) {
+        if (importDialog != null) {
+            importDialog.dismiss();
+            importDialog = null;
+        }
+
+        if (update == null) {
+            new AlertDialog.Builder(this, R.style.AccentMaterialAlertDialog)
+                    .setTitle(R.string.local_update_import)
+                    .setMessage(R.string.local_update_import_failure)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show();
+            return;
+        }
+
+        mAdapter.notifyDataSetChanged();
+
+        final Runnable deleteUpdate = () -> UpdaterController.getInstance(this)
+                .deleteUpdate(update.getDownloadId());
+
+        new AlertDialog.Builder(this, R.style.AccentMaterialAlertDialog)
+                .setTitle(R.string.local_update_import)
+                .setMessage(getString(R.string.local_update_import_success, update.getName()))
+                .setPositiveButton(R.string.local_update_import_install, (dialog, which) -> {
+                    mAdapter.addItem(update.getDownloadId());
+                    // Update UI
+                    getUpdatesList();
+                    Utils.triggerUpdate(this, update.getDownloadId());
+                })
+                .setNegativeButton(android.R.string.cancel, (dialog, which) -> deleteUpdate.run())
+                .setOnCancelListener((dialog) -> deleteUpdate.run())
+                .show();
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -360,6 +438,10 @@ public class UpdatesActivity extends UpdatesListActivity {
     }
 
     private void handleDownloadStatusChange(String downloadId) {
+        if (Update.LOCAL_ID.equals(downloadId)) {
+            return;
+        }
+
         UpdateInfo update = mUpdaterService.getUpdaterController().getUpdate(downloadId);
         switch (update.getStatus()) {
             case PAUSED_ERROR:

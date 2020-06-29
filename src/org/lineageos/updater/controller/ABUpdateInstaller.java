@@ -165,6 +165,10 @@ class ABUpdateInstaller {
         mDownloadId = downloadId;
 
         File file = mUpdaterController.getActualUpdate(mDownloadId).getFile();
+        return install(file, downloadId);
+    }
+
+    public boolean install(File file, String downloadId) {
         if (!file.exists()) {
             Log.e(TAG, "The given update doesn't exist");
             mUpdaterController.getActualUpdate(downloadId)
