@@ -57,13 +57,13 @@ public class PermissionsUtils {
     }
 
     /**
-     * Check and request the write external storage permission
+     * Check and request the read/write external storage permission
      *
      * @see #checkAndRequestPermissions(Activity, String[], int)
      */
     public static boolean checkAndRequestStoragePermission(Activity activity, int requestCode) {
         return checkAndRequestPermissions(activity,
-                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
                 requestCode);
     }
 }
