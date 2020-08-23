@@ -583,7 +583,7 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
         textView.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
-    private boolean isBatteryLevelOk() {
+    public boolean isBatteryLevelOk() {
         Intent intent = mActivity.registerReceiver(null,
                 new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         if (!intent.getBooleanExtra(BatteryManager.EXTRA_PRESENT, false)) {
