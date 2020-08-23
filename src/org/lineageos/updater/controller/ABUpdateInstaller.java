@@ -156,20 +156,25 @@ class ABUpdateInstaller {
     }
 
     public boolean install(String downloadId) {
+        mDownloadId = downloadId;
+        File file = mUpdaterController.getActualUpdate(mDownloadId).getFile();
+        return install(file);
+    }
+
+    public boolean install(File file) {
         if (isInstallingUpdate(mContext)) {
             Log.e(TAG, "Already installing an update");
             return false;
         }
 
-        mDownloadId = downloadId;
-
-        File file = mUpdaterController.getActualUpdate(mDownloadId).getFile();
         if (!file.exists()) {
             Log.e(TAG, "The given update doesn't exist");
-            mUpdaterController.getActualUpdate(downloadId)
-                    .setStatus(UpdateStatus.INSTALLATION_FAILED);
-            mUpdaterController.notifyUpdateChange(downloadId);
-            return false;
+            if (!mDownloadId.isEmpty()) {
+                mUpdaterController.getActualUpdate(downloadId)
+                        .setStatus(UpdateStatus.INSTALLATION_FAILED);
+                mUpdaterController.notifyUpdateChange(downloadId);
+            }
+            return  false;
         }
 
         long offset;
@@ -191,9 +196,11 @@ class ABUpdateInstaller {
             zipFile.close();
         } catch (IOException | IllegalArgumentException e) {
             Log.e(TAG, "Could not prepare " + file, e);
-            mUpdaterController.getActualUpdate(mDownloadId)
-                    .setStatus(UpdateStatus.INSTALLATION_FAILED);
-            mUpdaterController.notifyUpdateChange(mDownloadId);
+            if (!mDownloadId.isEmpty()) {
+                mUpdaterController.getActualUpdate(mDownloadId)
+                        .setStatus(UpdateStatus.INSTALLATION_FAILED);
+                mUpdaterController.notifyUpdateChange(mDownloadId);
+            }
             return false;
         }
 
@@ -201,9 +208,11 @@ class ABUpdateInstaller {
             mBound = mUpdateEngine.bind(mUpdateEngineCallback);
             if (!mBound) {
                 Log.e(TAG, "Could not bind");
-                mUpdaterController.getActualUpdate(downloadId)
-                        .setStatus(UpdateStatus.INSTALLATION_FAILED);
-                mUpdaterController.notifyUpdateChange(downloadId);
+                if (!mDownloadId.isEmpty()) {
+                    mUpdaterController.getActualUpdate(downloadId)
+                            .setStatus(UpdateStatus.INSTALLATION_FAILED);
+                    mUpdaterController.notifyUpdateChange(downloadId);
+                }
                 return false;
             }
         }
@@ -215,12 +224,14 @@ class ABUpdateInstaller {
         String zipFileUri = "file://" + file.getAbsolutePath();
         mUpdateEngine.applyPayload(zipFileUri, offset, 0, headerKeyValuePairs);
 
-        mUpdaterController.getActualUpdate(mDownloadId).setStatus(UpdateStatus.INSTALLING);
-        mUpdaterController.notifyUpdateChange(mDownloadId);
+        if (!mDownloadId.isEmpty()) {
+            mUpdaterController.getActualUpdate(mDownloadId).setStatus(UpdateStatus.INSTALLING);
+            mUpdaterController.notifyUpdateChange(mDownloadId);
 
-        PreferenceManager.getDefaultSharedPreferences(mContext).edit()
-                .putString(PREF_INSTALLING_AB_ID, mDownloadId)
-                .apply();
+            PreferenceManager.getDefaultSharedPreferences(mContext).edit()
+                    .putString(PREF_INSTALLING_AB_ID, mDownloadId)
+                    .apply();
+        }
 
         return true;
     }
