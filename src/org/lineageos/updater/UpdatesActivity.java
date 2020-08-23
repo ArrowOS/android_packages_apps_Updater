@@ -54,6 +54,7 @@ import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
+import org.lineageos.updater.controller.InstallUpdateZipFile;
 import org.lineageos.updater.controller.UpdaterController;
 import org.lineageos.updater.controller.UpdaterService;
 import org.lineageos.updater.download.DownloadClient;
@@ -69,11 +70,15 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 public class UpdatesActivity extends UpdatesListActivity {
 
     private static final String TAG = "UpdatesActivity";
+    private static final String FILE_INTENT_ZIP_INSTALL_SEND = "android.intent.action.SEND";
+    private static final String FILE_INTENT_ZIP_INSTALL_VIEW = "android.intent.action.VIEW";
+
     private UpdaterService mUpdaterService;
     private BroadcastReceiver mBroadcastReceiver;
 
@@ -124,7 +129,7 @@ public class UpdatesActivity extends UpdatesListActivity {
 
         TextView headerTitle = (TextView) findViewById(R.id.header_title);
         headerTitle.setText(getString(R.string.header_title_text,
-                BuildInfoUtils.getBuildVersion()) + "\n(" 
+                BuildInfoUtils.getBuildVersion()) + "\n("
                 + SystemProperties.get(Constants.PROP_DEVICE) + ")");
 
         updateLastCheckedString();
@@ -171,6 +176,18 @@ public class UpdatesActivity extends UpdatesListActivity {
     @Override
     public void onStart() {
         super.onStart();
+
+        Intent updateFileIntent = getIntent();
+        if (updateFileIntent != null) {
+            if (Objects.equals(updateFileIntent.getAction(), FILE_INTENT_ZIP_INSTALL_SEND)) {
+                sendZipInstall(Objects.requireNonNull(updateFileIntent.getClipData()).getItemAt(0).getUri());
+                return;
+            } else if (FILE_INTENT_ZIP_INSTALL_VIEW.equals(updateFileIntent.getAction())) {
+                sendZipInstall(Objects.requireNonNull(updateFileIntent.getData()));
+                return;
+            }
+        }
+
         Intent intent = new Intent(this, UpdaterService.class);
         startService(intent);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
@@ -181,6 +198,18 @@ public class UpdatesActivity extends UpdatesListActivity {
         intentFilter.addAction(UpdaterController.ACTION_INSTALL_PROGRESS);
         intentFilter.addAction(UpdaterController.ACTION_UPDATE_REMOVED);
         LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, intentFilter);
+    }
+
+    private void sendZipInstall(Uri zipFileInfo) {
+        InstallUpdateZipFile installUpdateZipFile;
+        String zipFilePath;
+        String zipFileName;
+
+        zipFilePath = zipFileInfo.getPath();
+        zipFileName = zipFileInfo.getLastPathSegment();
+
+        installUpdateZipFile = new InstallUpdateZipFile(this, mAdapter, zipFilePath, zipFileName);
+        installUpdateZipFile.prepareZip();
     }
 
     @Override
@@ -233,7 +262,7 @@ public class UpdatesActivity extends UpdatesListActivity {
 
         @Override
         public void onServiceConnected(ComponentName className,
-                IBinder service) {
+                                       IBinder service) {
             UpdaterService.LocalBinder binder = (UpdaterService.LocalBinder) service;
             mUpdaterService = binder.getService();
             mAdapter.setUpdaterController(mUpdaterService.getUpdaterController());
@@ -339,7 +368,7 @@ public class UpdatesActivity extends UpdatesListActivity {
 
             @Override
             public void onResponse(int statusCode, String url,
-                    DownloadClient.Headers headers) {
+                                   DownloadClient.Headers headers) {
             }
 
             @Override
@@ -457,7 +486,7 @@ public class UpdatesActivity extends UpdatesListActivity {
                 .show();
     }
 
-    public static void prepareSfMirrorsData (UpdateInfo updateInfo, UpdatesActivity mUpdatesActivity) {
+    public static void prepareSfMirrorsData(UpdateInfo updateInfo, UpdatesActivity mUpdatesActivity) {
 
         new AsyncTask<UpdateInfo, Void, Map<String, String>>() {
             @Override
@@ -510,7 +539,7 @@ public class UpdatesActivity extends UpdatesListActivity {
         Boolean isRankSort = Utils.getSfRankSortSetting(mUpdatesActivity);
         int setMirrorPos = 0;
 
-        for (int i=0; i<mirrors.length; i++) {
+        for (int i = 0; i < mirrors.length; i++) {
             if (mirrors[i].equals(prevMirrorName)) {
                 setMirrorPos = i;
                 break;
@@ -525,7 +554,7 @@ public class UpdatesActivity extends UpdatesListActivity {
         }
 
         if (isRankSort) {
-            int mirrorName =0;
+            int mirrorName = 0;
             for (Map.Entry<Double, String> pingVals : UpdaterController.sorted_ranked_mirrors.entrySet()) {
                 mirrors_pings[mirrorName] = mirrors[mirrorName] + "  (" + pingVals.getKey() + ")";
                 mirrorName++;
@@ -546,7 +575,7 @@ public class UpdatesActivity extends UpdatesListActivity {
                 .show();
     }
 
-    private void showSfMirrorPreferencesDialog () {
+    private void showSfMirrorPreferencesDialog() {
         View view = LayoutInflater.from(this).inflate(R.layout.sf_mirror_preferences, null);
         Switch sf_rank_sort = view.findViewById(R.id.rank_and_sort_mirrors);
 
