@@ -13,4 +13,8 @@
         android:id="@+id/menu_mirrors"
         android:title="@string/sf_mirror_preferences"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/install_local_file"
+        android:title="@string/menu_install_local_file"
+        app:showAsAction="never" />
 </menu>

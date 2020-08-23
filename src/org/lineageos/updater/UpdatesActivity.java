@@ -37,6 +37,7 @@ import android.view.View;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
@@ -51,10 +52,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
+import org.lineageos.updater.controller.InstallUpdateZipFile;
 import org.lineageos.updater.controller.UpdaterController;
 import org.lineageos.updater.controller.UpdaterService;
 import org.lineageos.updater.download.DownloadClient;
 import org.lineageos.updater.misc.Constants;
+import org.lineageos.updater.misc.FileUtils;
 import org.lineageos.updater.misc.StringGenerator;
 import org.lineageos.updater.misc.Utils;
 import org.lineageos.updater.model.UpdateInfo;
@@ -65,11 +68,15 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 public class UpdatesActivity extends UpdatesListActivity {
 
     private static final String TAG = "UpdatesActivity";
+    private static final String FILE_INTENT_ZIP_INSTALL_SEND = "android.intent.action.SEND";
+    private static final String FILE_INTENT_ZIP_INSTALL_VIEW = "android.intent.action.VIEW";
+
     private UpdaterService mUpdaterService;
     private BroadcastReceiver mBroadcastReceiver;
 
@@ -155,6 +162,16 @@ public class UpdatesActivity extends UpdatesListActivity {
     @Override
     public void onStart() {
         super.onStart();
+
+        Intent updateFileIntent = getIntent();
+        if (updateFileIntent != null) {
+            if (Objects.equals(updateFileIntent.getAction(), FILE_INTENT_ZIP_INSTALL_SEND)) {
+                sendZipInstall(Objects.requireNonNull(updateFileIntent.getClipData()).getItemAt(0).getUri());
+            } else if (Objects.equals(updateFileIntent.getAction(), FILE_INTENT_ZIP_INSTALL_VIEW)) {
+                sendZipInstall(updateFileIntent.getData());
+            }
+        }
+
         Intent intent = new Intent(this, UpdaterService.class);
         startService(intent);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
@@ -165,6 +182,14 @@ public class UpdatesActivity extends UpdatesListActivity {
         intentFilter.addAction(UpdaterController.ACTION_INSTALL_PROGRESS);
         intentFilter.addAction(UpdaterController.ACTION_UPDATE_REMOVED);
         LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, intentFilter);
+    }
+
+    private void sendZipInstall(Uri zipFileInfo) {
+        InstallUpdateZipFile installUpdateZipFile;
+        String zipFilePath;
+
+        installUpdateZipFile = new InstallUpdateZipFile(this, mAdapter, zipFileInfo);
+        installUpdateZipFile.beginInstall();
     }
 
     @Override
@@ -183,6 +208,14 @@ public class UpdatesActivity extends UpdatesListActivity {
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Constants.OPEN_DIRECTORY_REQUEST_CODE && data != null) {
+            sendZipInstall(data.getData());
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_preferences: {
@@ -198,6 +231,16 @@ public class UpdatesActivity extends UpdatesListActivity {
             case R.id.menu_mirrors: {
                 showMirrorPreferencesDialog();
                 return true;
+            }
+            case R.id.install_local_file: {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+                intent.setType("application/zip");
+
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    startActivityForResult(Intent.createChooser(intent, "Select the package"), Constants.OPEN_DIRECTORY_REQUEST_CODE);
+                }
             }
         }
         return super.onOptionsItemSelected(item);

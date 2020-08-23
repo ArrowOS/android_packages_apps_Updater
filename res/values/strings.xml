@@ -80,6 +80,7 @@
     <string name="menu_show_changelog">Show changelog</string>
     <string name="menu_changelog_url" translatable="false">https://changelog.arrowos.net/</string>
     <string name="menu_ab_perf_mode">Prioritize update process</string>
+    <string name="menu_install_local_file">Install package</string>
 
     <!-- Sourceforge mirrors -->
     <string name="sf_dialog_title">Available Mirrors</string>
@@ -170,4 +171,9 @@
 
     <string name="arrowos_display_version">ArrowOS <xliff:g id="version">%1$s</xliff:g> | <xliff:g id="variant">%2$s</xliff:g></string>
     <string name="build_info_card_title">Current build information</string>
+
+    <string name="zip_file_install_dialog_title">Failed to read the file</string>
+    <string name="zip_file_install_dialog_message">Failed to read the file. Make sure the Updater has permissions for reading the internal and external storage.</string>
+    <string name="preparing_update_title">Preparing the update</string>
+    <string name="preparing_update_summary">The update file is being prepared</string>
 </resources>
