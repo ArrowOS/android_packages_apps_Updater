@@ -80,6 +80,7 @@
     <string name="menu_show_changelog">Show changelog</string>
     <string name="menu_changelog_url" translatable="false">https://changelog.arrowos.net/</string>
     <string name="menu_ab_perf_mode">Prioritize update process</string>
+    <string name="menu_install_local_file">Install package</string>
 
     <!-- Sourceforge mirrors -->
     <string name="sf_dialog_title">Available Mirrors</string>
@@ -166,4 +167,7 @@
     <string name="new_updates_channel_title">New updates</string>
     <string name="ongoing_channel_title">Ongoing downloads</string>
     <string name="update_failed_channel_title">Update failed</string>
+
+    <string name="zip_file_install_dialog_title">Zip failed</string>
+    <string name="zip_file_install_dialog_message">Something went wrong while determining the zip file</string>
 </resources>
