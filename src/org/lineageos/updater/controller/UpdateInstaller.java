@@ -23,6 +23,7 @@ import android.util.Log;
 
 import androidx.preference.PreferenceManager;
 
+import org.lineageos.updater.R;
 import org.lineageos.updater.misc.Constants;
 import org.lineageos.updater.misc.FileUtils;
 import org.lineageos.updater.misc.Utils;
@@ -93,6 +94,16 @@ class UpdateInstaller {
         } else {
             installPackage(update.getFile(), downloadId);
         }
+    }
+
+    protected void installPackage(Context mContext, File file) {
+        Log.d(TAG, "Rebooting to install the package: " + file.toString());
+        try {
+            android.os.RecoverySystem.installPackage(mContext, file);
+        } catch (IOException e) {
+            Log.e(TAG, "Could not install update", e);
+        }
+
     }
 
     private void installPackage(File update, String downloadId) {
