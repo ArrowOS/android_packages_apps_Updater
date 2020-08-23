@@ -164,4 +164,7 @@
     <string name="new_updates_channel_title">New updates</string>
     <string name="ongoing_channel_title">Ongoing downloads</string>
     <string name="update_failed_channel_title">Update failed</string>
+
+    <string name="zip_file_install_dialog_title">Zip failed</string>
+    <string name="zip_file_install_dialog_message">Something went wrong while determining the zip file</string>
 </resources>
