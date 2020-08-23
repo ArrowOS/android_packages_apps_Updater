@@ -23,6 +23,7 @@ import android.util.Log;
 
 import androidx.preference.PreferenceManager;
 
+import org.lineageos.updater.R;
 import org.lineageos.updater.misc.Constants;
 import org.lineageos.updater.misc.FileUtils;
 import org.lineageos.updater.misc.Utils;
@@ -45,9 +46,12 @@ class UpdateInstaller {
     private final Context mContext;
     private final UpdaterController mUpdaterController;
 
+    public static File mLocalUpdateFile;
+
     private UpdateInstaller(Context context, UpdaterController controller) {
         mContext = context.getApplicationContext();
         mUpdaterController = controller;
+        mLocalUpdateFile = new File(mContext.getString(R.string.download_path) + "update.zip");
     }
 
     static synchronized UpdateInstaller getInstance(Context context,
@@ -92,6 +96,18 @@ class UpdateInstaller {
             prepareForUncryptAndInstall(update);
         } else {
             installPackage(update.getFile(), downloadId);
+        }
+    }
+
+    protected void installPackage(Context mContext, File file) {
+        Log.d(TAG, "Copying the update to a non-encrypted path");
+        try {
+            if (mLocalUpdateFile.exists())
+                mLocalUpdateFile.delete();
+            FileUtils.copyFile(file, mLocalUpdateFile);
+            android.os.RecoverySystem.installPackage(mContext, mLocalUpdateFile);
+        } catch (IOException e) {
+            Log.e(TAG, "Could not install update", e);
         }
     }
 
