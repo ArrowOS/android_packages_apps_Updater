@@ -95,6 +95,14 @@ class UpdateInstaller {
         }
     }
 
+    protected void installPackage(Context mContext, File file) {
+        try {
+            android.os.RecoverySystem.installPackage(mContext, file);
+        } catch (IOException e) {
+            Log.e(TAG, "Could not install update", e);
+        }
+    }
+
     private void installPackage(File update, String downloadId) {
         try {
             android.os.RecoverySystem.installPackage(mContext, update);

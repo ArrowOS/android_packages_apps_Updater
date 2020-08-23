@@ -54,6 +54,7 @@ import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
+import org.lineageos.updater.controller.InstallUpdateZipFile;
 import org.lineageos.updater.controller.UpdaterController;
 import org.lineageos.updater.controller.UpdaterService;
 import org.lineageos.updater.download.DownloadClient;
@@ -69,11 +70,15 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 public class UpdatesActivity extends UpdatesListActivity {
 
     private static final String TAG = "UpdatesActivity";
+    private static final String FILE_INTENT_ZIP_INSTALL_SEND = "android.intent.action.SEND";
+    private static final String FILE_INTENT_ZIP_INSTALL_VIEW = "android.intent.action.VIEW";
+
     private UpdaterService mUpdaterService;
     private BroadcastReceiver mBroadcastReceiver;
 
@@ -171,6 +176,18 @@ public class UpdatesActivity extends UpdatesListActivity {
     @Override
     public void onStart() {
         super.onStart();
+
+        Intent updateFileIntent = getIntent();
+        if (updateFileIntent != null) {
+            if (Objects.equals(updateFileIntent.getAction(), FILE_INTENT_ZIP_INSTALL_SEND)) {
+                sendZipInstall(Objects.requireNonNull(updateFileIntent.getClipData()).getItemAt(0).getUri());
+                return;
+            } else if (FILE_INTENT_ZIP_INSTALL_VIEW.equals(updateFileIntent.getAction())) {
+                sendZipInstall(Objects.requireNonNull(updateFileIntent.getData()));
+                return;
+            }
+        }
+
         Intent intent = new Intent(this, UpdaterService.class);
         startService(intent);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
@@ -181,6 +198,18 @@ public class UpdatesActivity extends UpdatesListActivity {
         intentFilter.addAction(UpdaterController.ACTION_INSTALL_PROGRESS);
         intentFilter.addAction(UpdaterController.ACTION_UPDATE_REMOVED);
         LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, intentFilter);
+    }
+
+    private void sendZipInstall(Uri zipFileInfo) {
+        InstallUpdateZipFile installUpdateZipFile;
+        String zipFilePath;
+        String zipFileName;
+
+        zipFilePath = zipFileInfo.getPath();
+        zipFileName = zipFileInfo.getLastPathSegment();
+
+        installUpdateZipFile = new InstallUpdateZipFile(this, mAdapter, zipFilePath, zipFileName);
+        installUpdateZipFile.prepareZip();
     }
 
     @Override
