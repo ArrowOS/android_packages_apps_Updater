@@ -23,6 +23,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -135,7 +136,13 @@ public class UpdatesCheckReceiver extends BroadcastReceiver {
         Intent notificationIntent = new Intent(context, UpdatesActivity.class);
         PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
-        notificationBuilder.setContentIntent(intent);
+        Intent webIntent = new Intent(context, UpdatesActivity.class);
+        webIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        webIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        webIntent.putExtra("ArrowDownloadUrl", Utils.getArrowDownloadUrl(context));
+        PendingIntent pendingWebIntent = PendingIntent.getActivity(context, 0, webIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        notificationBuilder.setContentIntent(Utils.isCommunityBuild() ? pendingWebIntent : intent);
         notificationBuilder.setContentTitle(context.getString(R.string.new_updates_found_title));
         notificationBuilder.setAutoCancel(true);
         notificationManager.createNotificationChannel(notificationChannel);
