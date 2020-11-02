@@ -405,4 +405,8 @@ public class Utils {
                 return AlarmManager.INTERVAL_DAY * 30;
         }
     }
+
+    public static boolean isCommunityBuild() {
+        return SystemProperties.get(Constants.PROP_RELEASE_TYPE).toLowerCase().equals("community");
+    }
 }
