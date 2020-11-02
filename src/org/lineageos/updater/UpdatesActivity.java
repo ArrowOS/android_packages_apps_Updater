@@ -37,6 +37,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
+import android.webkit.WebView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -84,11 +85,14 @@ public class UpdatesActivity extends UpdatesListActivity {
 
     private static Map<String, String> sf_mirrors;
 
+    private WebView loadWebView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_updates);
 
+        loadWebView = new WebView(this);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mAdapter = new UpdatesListAdapter(this, this);
         recyclerView.setAdapter(mAdapter);
@@ -171,6 +175,17 @@ public class UpdatesActivity extends UpdatesListActivity {
     @Override
     public void onStart() {
         super.onStart();
+
+        Intent updateFileIntent = this.getIntent();
+        Bundle intentExtras = updateFileIntent.getExtras();
+        if (intentExtras != null) {
+            if (intentExtras.containsKey("ArrowDownloadUrl")) {
+                String arrowDownloadUrl = intentExtras.getString("ArrowDownloadUrl");
+                if (!arrowDownloadUrl.isEmpty()) loadWebView.loadUrl(arrowDownloadUrl);
+                return;
+            }
+        }
+
         Intent intent = new Intent(this, UpdaterService.class);
         startService(intent);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
