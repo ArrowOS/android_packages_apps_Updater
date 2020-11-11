@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     Copyright (C) 2017 The LineageOS Project
+     Copyright (C) 2017-2020 The LineageOS Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -80,6 +80,8 @@
     <string name="menu_show_changelog">Show changelog</string>
     <string name="menu_changelog_url" translatable="false">https://changelog.arrowos.net/</string>
     <string name="menu_ab_perf_mode">Prioritize update process</string>
+    <string name="menu_update_recovery">Update recovery</string>
+    <string name="toast_forced_update_recovery">You cannot disable the update of Lineage Recovery on this device.</string>
 
     <!-- Sourceforge mirrors -->
     <string name="sf_dialog_title">Available Mirrors</string>
