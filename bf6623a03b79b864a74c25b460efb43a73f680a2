@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2ffb7463_5dd3baea",
+        "filename": "src/org/lineageos/updater/controller/UpdateInstaller.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 171
+      },
+      "writtenOn": "2020-12-17T14:26:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "221c5bb0_d39723b9",
+      "revId": "bf6623a03b79b864a74c25b460efb43a73f680a2",
+      "serverId": "66da7299-18b4-411a-8fa2-12a880778196",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b4bd9946_ce95b893",
         "filename": "src/org/lineageos/updater/controller/UpdateInstaller.java",
         "patchSetId": 11
@@ -33,6 +51,24 @@
       "revId": "bf6623a03b79b864a74c25b460efb43a73f680a2",
       "serverId": "66da7299-18b4-411a-8fa2-12a880778196",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1690bfd4_e1b5f2fd",
+        "filename": "src/org/lineageos/updater/controller/UpdateInstaller.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 171
+      },
+      "writtenOn": "2020-12-17T14:26:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4bd9946_ce95b893",
+      "revId": "bf6623a03b79b864a74c25b460efb43a73f680a2",
+      "serverId": "66da7299-18b4-411a-8fa2-12a880778196",
+      "unresolved": false
     }
   ]
 }
