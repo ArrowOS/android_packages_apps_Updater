@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "221c5bb0_d39723b9",
+        "filename": "src/org/lineageos/updater/controller/UpdateInstaller.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 4
+      },
+      "writtenOn": "2020-12-17T14:01:05Z",
+      "side": 1,
+      "message": "This can be moved within the zipInstall class not necessary to access it from here.",
+      "revId": "bf6623a03b79b864a74c25b460efb43a73f680a2",
+      "serverId": "66da7299-18b4-411a-8fa2-12a880778196",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4bd9946_ce95b893",
+        "filename": "src/org/lineageos/updater/controller/UpdateInstaller.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 4
+      },
+      "writtenOn": "2020-12-17T14:01:05Z",
+      "side": 1,
+      "message": "Redundant variable!",
+      "revId": "bf6623a03b79b864a74c25b460efb43a73f680a2",
+      "serverId": "66da7299-18b4-411a-8fa2-12a880778196",
+      "unresolved": true
+    }
+  ]
+}
