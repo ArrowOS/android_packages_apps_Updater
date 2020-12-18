@@ -23,6 +23,7 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.PowerManager;
+import android.os.SystemProperties;
 import android.preference.PreferenceManager;
 import android.text.SpannableString;
 import android.text.format.Formatter;
@@ -91,6 +92,7 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
         DELETE,
         CANCEL_INSTALLATION,
         REBOOT,
+        UPDATE_NEEDS_CLEAN_FLASH,
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -229,6 +231,11 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
                     getLongClickListener(update, false, viewHolder.mBuildDate));
             setButtonAction(viewHolder.mAction, Action.DOWNLOAD, downloadId, !isBusy());
         }
+
+        if (SystemProperties.getBoolean(Constants.PROP_NEEDS_CLEAN_FLASH, false)) {
+            setButtonAction(viewHolder.mAction, Action.UPDATE_NEEDS_CLEAN_FLASH, downloadId, !isBusy());
+        }
+
         String fileSize = Formatter.formatShortFileSize(mActivity, update.getFileSize());
         viewHolder.mBuildSize.setText(fileSize);
 
@@ -422,6 +429,14 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
                 } : null;
             }
             break;
+            case UPDATE_NEEDS_CLEAN_FLASH: {
+                button.setText(R.string.clean_flash_needed_button);
+                button.setEnabled(enabled);
+                clickListener = enabled ? view -> {
+                    getForbiddenUpdateDialog().show();
+                } : null;
+            }
+            break;
             default:
                 clickListener = null;
         }
@@ -450,6 +465,13 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
                             mUpdaterController.deleteUpdate(downloadId);
                         })
                 .setNegativeButton(android.R.string.cancel, null);
+    }
+
+    private AlertDialog.Builder getForbiddenUpdateDialog() {
+        return new AlertDialog.Builder(mActivity)
+                .setTitle(R.string.clean_flash_needed_dialog_title)
+                .setMessage(R.string.clean_flash_needed_dialog_message)
+                .setPositiveButton(android.R.string.ok, null);
     }
 
     private View.OnLongClickListener getLongClickListener(final UpdateInfo update,
