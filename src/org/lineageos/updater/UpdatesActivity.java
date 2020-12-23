@@ -15,6 +15,7 @@
  */
 package org.lineageos.updater;
 
+import android.animation.ObjectAnimator;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -37,6 +38,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -51,6 +53,8 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
@@ -79,8 +83,9 @@ public class UpdatesActivity extends UpdatesListActivity {
 
     private static UpdatesListAdapter mAdapter;
 
-    private View mRefreshIconView;
-    private RotateAnimation mRefreshAnimation;
+    private FloatingActionButton mRefreshIconButton;
+    private ObjectAnimator mRefreshAnimation;
+    private TextView mUpdateText;
 
     private static Map<String, String> sf_mirrors;
 
@@ -98,6 +103,9 @@ public class UpdatesActivity extends UpdatesListActivity {
         if (animator instanceof SimpleItemAnimator) {
             ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
         }
+
+        mRefreshIconButton = findViewById(R.id.refresh);
+        mUpdateText = findViewById(R.id.updates_message);
 
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -117,56 +125,19 @@ public class UpdatesActivity extends UpdatesListActivity {
             }
         };
 
+        mRefreshIconButton.setOnClickListener(v -> {
+            downloadUpdatesList(true);
+        });
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        TextView headerTitle = (TextView) findViewById(R.id.header_title);
-        headerTitle.setText(getString(R.string.header_title_text,
-                BuildInfoUtils.getBuildVersion()) + "\n"
-                + SystemProperties.get(Constants.PROP_ZIP_TYPE) + "\n\n("
-                + SystemProperties.get(Constants.PROP_DEVICE) + ")");
-
-        updateLastCheckedString();
-
-        TextView headerBuildVersion = (TextView) findViewById(R.id.header_build_version);
-        headerBuildVersion.setText(
-                getString(R.string.header_android_version, Build.VERSION.RELEASE));
-
-        TextView headerBuildDate = (TextView) findViewById(R.id.header_build_date);
-        headerBuildDate.setText(StringGenerator.getDateLocalizedUTC(this,
-                DateFormat.LONG, BuildInfoUtils.getBuildDateTimestamp()));
-
-        // Switch between header title and appbar title minimizing overlaps
-        final CollapsingToolbarLayout collapsingToolbar =
-                (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-        final AppBarLayout appBar = (AppBarLayout) findViewById(R.id.app_bar);
-        appBar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            boolean mIsShown = false;
-
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                int scrollRange = appBarLayout.getTotalScrollRange();
-                if (!mIsShown && scrollRange + verticalOffset < 10) {
-                    collapsingToolbar.setTitle(getString(R.string.display_name));
-                    mIsShown = true;
-                } else if (mIsShown && scrollRange + verticalOffset > 100) {
-                    collapsingToolbar.setTitle(null);
-                    mIsShown = false;
-                }
-            }
-        });
-
-        if (!Utils.hasTouchscreen(this)) {
-            // This can't be collapsed without a touchscreen
-            appBar.setExpanded(false);
-        }
-
-        mRefreshAnimation = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f,
-                Animation.RELATIVE_TO_SELF, 0.5f);
-        mRefreshAnimation.setInterpolator(new LinearInterpolator());
+        mRefreshAnimation = ObjectAnimator.ofFloat(mRefreshIconButton, "rotation", 0f, 360f);
         mRefreshAnimation.setDuration(1000);
+        mRefreshAnimation.setRepeatMode(ObjectAnimator.RESTART);
+        mRefreshAnimation.setRepeatCount(ObjectAnimator.INFINITE);
     }
 
     @Override
@@ -202,10 +173,6 @@ public class UpdatesActivity extends UpdatesListActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_refresh: {
-                downloadUpdatesList(true);
-                return true;
-            }
             case R.id.menu_preferences: {
                 showPreferencesDialog();
                 return true;
@@ -258,8 +225,10 @@ public class UpdatesActivity extends UpdatesListActivity {
         List<UpdateInfo> updates = Utils.parseJson(jsonFile, true);
         List<String> updatesOnline = new ArrayList<>();
         for (UpdateInfo update : updates) {
-            newUpdates |= controller.addUpdate(update);
-            updatesOnline.add(update.getDownloadId());
+                newUpdates |= controller.addUpdate(update);
+                controller.addUpdate(update);
+                updatesOnline.add(updates.get(0).getDownloadId());
+                mUpdateText.setText(R.string.snack_updates_found);
         }
         controller.setUpdatesAvailableOnline(updatesOnline, true);
 
@@ -272,10 +241,8 @@ public class UpdatesActivity extends UpdatesListActivity {
         List<String> updateIds = new ArrayList<>();
         List<UpdateInfo> sortedUpdates = controller.getUpdates();
         if (sortedUpdates.isEmpty()) {
-            findViewById(R.id.no_new_updates_view).setVisibility(View.VISIBLE);
             findViewById(R.id.recycler_view).setVisibility(View.GONE);
         } else {
-            findViewById(R.id.no_new_updates_view).setVisibility(View.GONE);
             findViewById(R.id.recycler_view).setVisibility(View.VISIBLE);
             sortedUpdates.sort((u1, u2) -> Long.compare(u2.getTimestamp(), u1.getTimestamp()));
             for (UpdateInfo update : sortedUpdates) {
@@ -306,7 +273,6 @@ public class UpdatesActivity extends UpdatesListActivity {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             long millis = System.currentTimeMillis();
             preferences.edit().putLong(Constants.PREF_LAST_UPDATE_CHECK, millis).apply();
-            updateLastCheckedString();
             if (json.exists() && Utils.isUpdateCheckEnabled(this) &&
                     Utils.checkForNewUpdates(json, jsonNew)) {
                 UpdatesCheckReceiver.updateRepeatingUpdatesCheck(this);
@@ -334,7 +300,11 @@ public class UpdatesActivity extends UpdatesListActivity {
                     if (!cancelled) {
                         showSnackbar(R.string.snack_updates_server_down, Snackbar.LENGTH_LONG);
                     }
-                    refreshAnimationStop();
+
+                    mRefreshIconButton.setEnabled(true);
+                    mRefreshIconButton.setClickable(true);
+                    mRefreshIconButton.setBackgroundTintList(getColorStateList(R.color.theme_accent));
+                    mRefreshAnimation.end();
                 });
             }
 
@@ -348,7 +318,10 @@ public class UpdatesActivity extends UpdatesListActivity {
                 runOnUiThread(() -> {
                     Log.d(TAG, "List downloaded");
                     processNewJson(jsonFile, jsonFileTmp, manualRefresh);
-                    refreshAnimationStop();
+                    mRefreshIconButton.setEnabled(true);
+                    mRefreshIconButton.setClickable(true);
+                    mRefreshIconButton.setBackgroundTintList(getColorStateList(R.color.theme_accent));
+                    mRefreshAnimation.end();
                 });
             }
         };
@@ -366,19 +339,11 @@ public class UpdatesActivity extends UpdatesListActivity {
             return;
         }
 
-        refreshAnimationStart();
+        mRefreshIconButton.setEnabled(false);
+        mRefreshIconButton.setClickable(false);
+        mRefreshIconButton.setBackgroundTintList(getColorStateList(R.color.button_clicked));
+        mRefreshAnimation.start();
         downloadClient.start();
-    }
-
-    private void updateLastCheckedString() {
-        final SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(this);
-        long lastCheck = preferences.getLong(Constants.PREF_LAST_UPDATE_CHECK, -1) / 1000;
-        String lastCheckString = getString(R.string.header_last_updates_check,
-                StringGenerator.getDateLocalized(this, DateFormat.LONG, lastCheck),
-                StringGenerator.getTimeLocalized(this, lastCheck));
-        TextView headerLastCheck = (TextView) findViewById(R.id.header_last_check);
-        headerLastCheck.setText(lastCheckString);
     }
 
     private void handleDownloadStatusChange(String downloadId) {
@@ -398,29 +363,13 @@ public class UpdatesActivity extends UpdatesListActivity {
 
     @Override
     public void showSnackbar(int stringId, int duration) {
-        Snackbar.make(findViewById(R.id.main_container), stringId, duration).show();
+        Snackbar snackbar = Snackbar.make(findViewById(R.id.toolbar), stringId, duration);
+        snackbar.show();
     }
 
     public void showSnackbarString(String string, int duration) {
-        Snackbar.make(findViewById(R.id.main_container), string, duration).show();
-    }
-
-    private void refreshAnimationStart() {
-        if (mRefreshIconView == null) {
-            mRefreshIconView = findViewById(R.id.menu_refresh);
-        }
-        if (mRefreshIconView != null) {
-            mRefreshAnimation.setRepeatCount(Animation.INFINITE);
-            mRefreshIconView.startAnimation(mRefreshAnimation);
-            mRefreshIconView.setEnabled(false);
-        }
-    }
-
-    private void refreshAnimationStop() {
-        if (mRefreshIconView != null) {
-            mRefreshAnimation.setRepeatCount(0);
-            mRefreshIconView.setEnabled(true);
-        }
+        Snackbar snackbar = Snackbar.make(findViewById(R.id.toolbar), string, duration);
+        snackbar.show();
     }
 
     private void showPreferencesDialog() {

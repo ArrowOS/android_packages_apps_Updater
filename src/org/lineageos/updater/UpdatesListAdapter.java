@@ -23,6 +23,7 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.PowerManager;
+import android.os.SystemProperties;
 import android.preference.PreferenceManager;
 import android.text.SpannableString;
 import android.text.format.Formatter;
@@ -276,7 +277,7 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
                 update.getVersion());
         String downloadMirror = MirrorsDbHelper.getInstance(mUpdatesActivity).getMirrorName(update.getDownloadId());
         viewHolder.mBuildDate.setText(buildDate);
-        viewHolder.mBuildVersion.setText(buildVersion);
+        viewHolder.mBuildVersion.setText(buildVersion + " | " + SystemProperties.get(Constants.PROP_ZIP_TYPE));
         viewHolder.mDownloadMirror.setText(downloadMirror);
         viewHolder.mBuildVersion.setCompoundDrawables(null, null, null, null);
 
@@ -441,7 +442,7 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
     }
 
     private AlertDialog.Builder getDeleteDialog(final String downloadId) {
-        return new AlertDialog.Builder(mActivity)
+        return new AlertDialog.Builder(mActivity, R.style.AccentMaterialAlertDialog)
                 .setTitle(R.string.confirm_delete_dialog_title)
                 .setMessage(R.string.confirm_delete_dialog_message)
                 .setPositiveButton(android.R.string.ok,
