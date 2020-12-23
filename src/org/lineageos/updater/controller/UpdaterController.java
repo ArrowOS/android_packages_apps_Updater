@@ -350,6 +350,7 @@ public class UpdaterController {
 
     public boolean addUpdate(UpdateInfo update) {
         return addUpdate(update, true);
+
     }
 
     private boolean addUpdate(final UpdateInfo updateInfo, boolean availableOnline) {
