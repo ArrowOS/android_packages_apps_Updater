@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "e6453b10_fa3c7499",
+        "filename": "AndroidManifest.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 3
+      },
+      "writtenOn": "2020-12-24T13:54:51Z",
+      "side": 1,
+      "message": "removing spacing before and after \"\u003d\"",
+      "revId": "07ca33ee162f4b9276e55195bc0c84ec64d8bdd7",
+      "serverId": "66da7299-18b4-411a-8fa2-12a880778196",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "acc2d906_1d38f771",
         "filename": "res/drawable/round_button.xml",
         "patchSetId": 8
@@ -13,6 +30,23 @@
       "writtenOn": "2020-12-24T13:43:02Z",
       "side": 1,
       "message": "dont mention",
+      "revId": "07ca33ee162f4b9276e55195bc0c84ec64d8bdd7",
+      "serverId": "66da7299-18b4-411a-8fa2-12a880778196",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8cc39cc1_c9acf699",
+        "filename": "res/values/styles.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 3
+      },
+      "writtenOn": "2020-12-24T13:54:51Z",
+      "side": 1,
+      "message": "Sure we follow accents? In some dark theme accents get messed up BUT this should be checked with new Updater design again..",
       "revId": "07ca33ee162f4b9276e55195bc0c84ec64d8bdd7",
       "serverId": "66da7299-18b4-411a-8fa2-12a880778196",
       "unresolved": true
