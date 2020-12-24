@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "acc2d906_1d38f771",
+        "filename": "res/drawable/round_button.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 3
+      },
+      "writtenOn": "2020-12-24T13:43:02Z",
+      "side": 1,
+      "message": "dont mention",
+      "revId": "07ca33ee162f4b9276e55195bc0c84ec64d8bdd7",
+      "serverId": "66da7299-18b4-411a-8fa2-12a880778196",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8344fa96_9dcab146",
+        "filename": "src/org/lineageos/updater/controller/UpdaterController.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 3
+      },
+      "writtenOn": "2020-12-24T13:43:02Z",
+      "side": 1,
+      "message": "not needed",
+      "revId": "07ca33ee162f4b9276e55195bc0c84ec64d8bdd7",
+      "serverId": "66da7299-18b4-411a-8fa2-12a880778196",
+      "unresolved": true
+    }
+  ]
+}
