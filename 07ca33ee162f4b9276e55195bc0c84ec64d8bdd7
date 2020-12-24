@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "88683f03_f0607c08",
+        "filename": "AndroidManifest.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 171
+      },
+      "writtenOn": "2020-12-24T14:08:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e6453b10_fa3c7499",
+      "revId": "07ca33ee162f4b9276e55195bc0c84ec64d8bdd7",
+      "serverId": "66da7299-18b4-411a-8fa2-12a880778196",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "acc2d906_1d38f771",
         "filename": "res/drawable/round_button.xml",
         "patchSetId": 8
@@ -33,6 +51,24 @@
       "revId": "07ca33ee162f4b9276e55195bc0c84ec64d8bdd7",
       "serverId": "66da7299-18b4-411a-8fa2-12a880778196",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28977380_f9e4deef",
+        "filename": "res/drawable/round_button.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 171
+      },
+      "writtenOn": "2020-12-24T14:08:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "acc2d906_1d38f771",
+      "revId": "07ca33ee162f4b9276e55195bc0c84ec64d8bdd7",
+      "serverId": "66da7299-18b4-411a-8fa2-12a880778196",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "aaa6cbe4_fad1d42d",
+        "filename": "res/values/styles.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 171
+      },
+      "writtenOn": "2020-12-24T14:08:13Z",
+      "side": 1,
+      "message": "This just changes the color of the text of the positive and negative button to the accent, I tried and works fine here.",
+      "parentUuid": "8cc39cc1_c9acf699",
+      "revId": "07ca33ee162f4b9276e55195bc0c84ec64d8bdd7",
+      "serverId": "66da7299-18b4-411a-8fa2-12a880778196",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8344fa96_9dcab146",
         "filename": "src/org/lineageos/updater/controller/UpdaterController.java",
         "patchSetId": 8
@@ -67,6 +121,24 @@
       "revId": "07ca33ee162f4b9276e55195bc0c84ec64d8bdd7",
       "serverId": "66da7299-18b4-411a-8fa2-12a880778196",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0cf1afc6_c76cf080",
+        "filename": "src/org/lineageos/updater/controller/UpdaterController.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 171
+      },
+      "writtenOn": "2020-12-24T14:08:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8344fa96_9dcab146",
+      "revId": "07ca33ee162f4b9276e55195bc0c84ec64d8bdd7",
+      "serverId": "66da7299-18b4-411a-8fa2-12a880778196",
+      "unresolved": false
     }
   ]
 }
