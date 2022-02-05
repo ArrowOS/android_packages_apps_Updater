@@ -172,4 +172,8 @@
 
     <string name="arrowos_display_version">ArrowOS <xliff:g id="version">%1$s</xliff:g> | <xliff:g id="variant">%2$s</xliff:g></string>
     <string name="build_info_card_title">Current build information</string>
+
+    <string name="info_dialog_title">Did you know?</string>
+    <string name="info_dialog_message">ArrowOS updates are full installation packages. That means you can always install only the latest update, even if you skipped some in between!</string>
+    <string name="info_dialog_ok">Thanks for the info!</string>
 </resources>
