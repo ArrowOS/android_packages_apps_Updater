@@ -15,6 +15,7 @@
  */
 package org.lineageos.updater;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -39,6 +40,8 @@ import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.view.menu.MenuBuilder;
@@ -52,13 +55,11 @@ import org.lineageos.updater.controller.UpdaterController;
 import org.lineageos.updater.controller.UpdaterService;
 import org.lineageos.updater.misc.BuildInfoUtils;
 import org.lineageos.updater.misc.Constants;
-import org.lineageos.updater.misc.PermissionsUtils;
 import org.lineageos.updater.misc.StringGenerator;
 import org.lineageos.updater.misc.Utils;
 import org.lineageos.updater.model.UpdateInfo;
 import org.lineageos.updater.model.UpdateStatus;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.NumberFormat;
@@ -81,6 +82,8 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
     private UpdatesActivity mUpdatesActivity;
 
     private AlertDialog infoDialog;
+
+    private UpdateInfo mToBeExported = null;
 
     private enum Action {
         DOWNLOAD,
@@ -538,12 +541,7 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
                             mActivity.getString(R.string.toast_download_url_copied));
                     return true;
                 case R.id.menu_export_update:
-                    // TODO: start exporting once the permission has been granted
-                    boolean hasPermission = PermissionsUtils.checkAndRequestStoragePermission(
-                            mActivity, 0);
-                    if (hasPermission) {
-                        exportUpdate(update);
-                    }
+                exportUpdate(update);
                     return true;
                 case R.id.menu_mirrors:
                     UpdatesActivity.prepareMirrorsData(update, mUpdatesActivity);
@@ -557,14 +555,35 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
     }
 
     private void exportUpdate(UpdateInfo update) {
-        File dest = new File(Utils.getExportPath(mActivity), update.getName());
-        if (dest.exists()) {
-            dest = Utils.appendSequentialNumber(dest);
+        if (mActivity == null) {
+            return;
         }
+        mToBeExported = update;
+        ActivityResultLauncher<Intent> resultLauncher = mActivity.registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent intent = result.getData();
+                        if (intent != null) {
+                            Uri uri = intent.getData();
+                            exportUpdate(uri);
+                        }
+                    }
+                });
+
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/zip");
+        intent.putExtra(Intent.EXTRA_TITLE, update.getName());
+
+        resultLauncher.launch(intent);
+    }
+
+    private void exportUpdate(Uri uri) {
         Intent intent = new Intent(mActivity, ExportUpdateService.class);
         intent.setAction(ExportUpdateService.ACTION_START_EXPORTING);
-        intent.putExtra(ExportUpdateService.EXTRA_SOURCE_FILE, update.getFile());
-        intent.putExtra(ExportUpdateService.EXTRA_DEST_FILE, dest);
+        intent.putExtra(ExportUpdateService.EXTRA_SOURCE_FILE, mToBeExported.getFile());
+        intent.putExtra(ExportUpdateService.EXTRA_DEST_URI, uri);
         mActivity.startService(intent);
     }
 
