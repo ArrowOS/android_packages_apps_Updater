@@ -52,7 +52,6 @@ import org.lineageos.updater.controller.UpdaterController;
 import org.lineageos.updater.controller.UpdaterService;
 import org.lineageos.updater.misc.BuildInfoUtils;
 import org.lineageos.updater.misc.Constants;
-import org.lineageos.updater.misc.PermissionsUtils;
 import org.lineageos.updater.misc.StringGenerator;
 import org.lineageos.updater.misc.Utils;
 import org.lineageos.updater.model.UpdateInfo;
@@ -538,12 +537,7 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
                             mActivity.getString(R.string.toast_download_url_copied));
                     return true;
                 case R.id.menu_export_update:
-                    // TODO: start exporting once the permission has been granted
-                    boolean hasPermission = PermissionsUtils.checkAndRequestStoragePermission(
-                            mActivity, 0);
-                    if (hasPermission) {
-                        exportUpdate(update);
-                    }
+                    exportUpdate(update);
                     return true;
                 case R.id.menu_mirrors:
                     UpdatesActivity.prepareMirrorsData(update, mUpdatesActivity);
