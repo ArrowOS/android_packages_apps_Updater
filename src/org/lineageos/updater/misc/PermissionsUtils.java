@@ -18,10 +18,7 @@ package org.lineageos.updater.misc;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Environment;
-import android.provider.Settings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,15 +28,6 @@ public class PermissionsUtils {
     public static boolean hasPermission(Context context, String permission) {
         int permissionState = context.checkSelfPermission(permission);
         return permissionState == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private static boolean hasManageStoragePermission(Context context) {
-        if (Environment.isExternalStorageManager())
-            return true;
-
-        Intent intent = new Intent().setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-        context.startActivity(intent);
-        return false;
     }
 
     /**
@@ -54,7 +42,7 @@ public class PermissionsUtils {
             final String[] permissions, final int requestCode) {
         List<String> permissionsList = new ArrayList<>();
         for (String permission : permissions) {
-            if (!hasPermission(activity, permission) || !hasManageStoragePermission(activity)) {
+            if (!hasPermission(activity, permission)) {
                 permissionsList.add(permission);
             }
         }
@@ -69,14 +57,13 @@ public class PermissionsUtils {
     }
 
     /**
-     * Check and request the manage external storage permission
-     * To save OTA packages inside root of internal storage
+     * Check and request the write external storage permission
      *
      * @see #checkAndRequestPermissions(Activity, String[], int)
      */
     public static boolean checkAndRequestStoragePermission(Activity activity, int requestCode) {
         return checkAndRequestPermissions(activity,
-                new String[]{Manifest.permission.MANAGE_EXTERNAL_STORAGE},
+                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                 requestCode);
     }
 }
