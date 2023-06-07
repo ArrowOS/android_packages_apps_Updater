@@ -81,6 +81,8 @@ public class UpdaterService extends Service {
 
     private UpdaterController mUpdaterController;
 
+    private boolean mRebootPending = false;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -263,10 +265,12 @@ public class UpdaterService extends Service {
     private void handleUpdateStatusChange(UpdateInfo update) {
         switch (update.getStatus()) {
             case DELETED: {
-                stopForeground(STOP_FOREGROUND_DETACH);
-                mNotificationBuilder.setOngoing(false);
-                mNotificationManager.cancel(NOTIFICATION_ID);
-                tryStopSelf();
+                if (!mRebootPending) {
+                    stopForeground(STOP_FOREGROUND_DETACH);
+                    mNotificationBuilder.setOngoing(false);
+                    mNotificationManager.cancel(NOTIFICATION_ID);
+                    tryStopSelf();
+                }
                 break;
             }
             case STARTING: {
@@ -418,6 +422,8 @@ public class UpdaterService extends Service {
                 mNotificationBuilder.setOngoing(true);
                 mNotificationBuilder.setAutoCancel(false);
                 mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
+
+                mRebootPending = true;
 
                 SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
                 boolean deleteUpdate = pref.getBoolean(Constants.PREF_AUTO_DELETE_UPDATES, false);
