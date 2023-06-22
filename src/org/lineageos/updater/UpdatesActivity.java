@@ -38,7 +38,6 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -47,6 +46,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -405,7 +405,7 @@ public class UpdatesActivity extends UpdatesListActivity {
         dataWarning.setChecked(prefs.getBoolean(Constants.PREF_MOBILE_DATA_WARNING, true));
         abPerfMode.setChecked(prefs.getBoolean(Constants.PREF_AB_PERF_MODE, false));
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.menu_preferences)
                 .setView(view)
                 .setOnDismissListener(dialogInterface -> {
@@ -510,7 +510,7 @@ public class UpdatesActivity extends UpdatesListActivity {
             }
         }
 
-        new AlertDialog.Builder(mUpdatesActivity)
+        new MaterialAlertDialogBuilder(mUpdatesActivity)
                 .setTitle(R.string.sf_dialog_title)
                 .setSingleChoiceItems((isRankSort) ? mirrors_pings : mirrors, setMirrorPos, (dialogInterface, i) -> {
 
@@ -531,7 +531,7 @@ public class UpdatesActivity extends UpdatesListActivity {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         rank_sort.setChecked(prefs.getBoolean(Constants.PREF_RANK_SORT, false));
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.sf_mirror_preferences)
                 .setView(view)
                 .setOnDismissListener(dialogInterface -> prefs.edit()
