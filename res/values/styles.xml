@@ -32,7 +32,7 @@
         <item name="android:dropDownHorizontalOffset">-16dp</item>
     </style>
 
-    <style name="AccentMaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.Dialog">
+    <style name="AccentMaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="buttonBarPositiveButtonStyle">@style/AccentButton</item>
         <item name="buttonBarNegativeButtonStyle">@style/AccentButton</item>
     </style>
